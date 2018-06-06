@@ -1,3 +1,5 @@
+const config = require('./config.json');
+
 module.exports = {
   /*
   ** Headers of the page
@@ -25,12 +27,16 @@ module.exports = {
   modules: [
     ["@nuxtjs/axios", {
       prefix: "/api",
+      proxy: true,
       port: 8102
     }]
   ],
   plugins: [
     '~/plugins/auth'
   ],
+  proxy: {
+    "/api/": config.origin || "https://giveaways.stupidcat.me"
+  },
   mode: 'spa',
 
   /*
