@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
+:root {
+  --background-primary: #232323;
+  --text-primary: #eaeaea;
+
+  --text-link: #15edb3;
+  --text-link-hover: #12ce9c;
+  --background-link-hover: rgba(10,102,77,0.5);
+
+  --typeface-primary: 'Montserrat', sans-serif;
+}
+
+html, body
+{
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  font-family: var(--typeface-primary);
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing:border-box;
+}
+#__nuxt, #__layout, #__layout > div {
+  height: 100vh;
+}
+
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  display: block;
+  width: 100%;
+}
+
+.title {
+  margin: 0 0 20px 0;
+  font-weight: normal;
+  font-size: 2.5em;
+  letter-spacing: 2.1px;
+}
+
+.box {
+  display: block;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+p {
+  line-height: 1.4em;
+}
+
+.center {
+  text-align: center;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.flex-row-item {
+  flex: 0 1 auto;
+  margin: 5px 0;
+}
+
+.flex-row-separator {
+  width: 1px;
+  margin: 6px 10px;
+  background: rgba(255,255,255,0.3);
+}
+
+a, a:focus, a:visited {
+  color: var(--text-link);
+  text-decoration: none;
+  padding: 5px;
+  border-radius: 3px;
+  transition-duration: 0.2s;
+}
+a:hover {
+  color: var(--text-link-hover);
+  background: var(--background-link-hover);
+}
+
+
+.page-enter-active, .page-leave-active
+{
+  transition: opacity .5s
+}
+.page-enter, .page-leave-active
+{
+  opacity: 0
+}
