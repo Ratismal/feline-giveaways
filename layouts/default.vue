@@ -15,6 +15,17 @@ export default {
     ) {
       this.$router.push("/privacy");
     }
+  },
+  watch: {
+    $route: function() {
+      if (
+        this.$store.state.user &&
+        !this.$store.state.user.privacyAccept &&
+        this.$router.currentRoute.path !== "/privacy"
+      ) {
+        this.$router.push("/privacy");
+      }
+    }
   }
 };
 </script>

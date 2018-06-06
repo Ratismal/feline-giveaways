@@ -1,6 +1,7 @@
 export const state = () => ({
     user: null,
-    token: null
+    token: null,
+    privacyVersion: 0
 });
 
 export const mutations = {
@@ -12,6 +13,9 @@ export const mutations = {
     },
     setToken(state, token) {
         state.token = token;
+    },
+    setPrivacyVersion(state, ver) {
+        state.privacyVersion = ver;
     }
 };
 

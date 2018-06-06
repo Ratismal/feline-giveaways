@@ -9,4 +9,6 @@ export default async ({ req, store, app }) => {
         store.commit("setUser", user);
         app.$axios.setToken(token);
     }
+    const privacyVersion = await app.$axios.$get("/privacy_version");
+    store.commit("setPrivacyVersion", privacyVersion);
 };

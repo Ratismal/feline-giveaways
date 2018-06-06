@@ -11,7 +11,7 @@
         <li>may share the list of members who entered a giveaway with the giveaway's creator</li>
         <li>may store whether i've agreed to these terms</li>
       </ol>
-      <div v-if="$store.state.user !== null && !$store.state.user.privacyAccept" class='flex-row'>
+      <div v-if="$store.state.user !== null && !accepted" class='flex-row'>
         <a class="flex-row-item button" @click.prevent="logout">
           log out
         </a>
@@ -37,8 +37,13 @@ export default {
   asyncData({ req, store }) {
     return {
       confirmation: store.state.user !== null,
-      version: 1
+      version: store.state.privacyVersion
     };
+  },
+  computed: {
+    accepted() {
+      return this.$store.state.user.privacyAccept === this.version;
+    }
   },
   head() {
     return {
@@ -53,7 +58,7 @@ export default {
     },
     reject() {
       this.$axios.post("/privacy", { accept: false });
-      this.$store.commit("setUserPrivacy", this.version);
+      this.$store.commit("setUserPrivacy", false);
       this.$router.push("/privacy");
     },
     logout() {

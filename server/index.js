@@ -7,6 +7,8 @@ import Security from './security';
 import rethinkdbdash from 'rethinkdbdash';
 
 async function start() {
+  const privacy_version = 1;
+
   const r = rethinkdbdash({
     host: gconfig.r.host,
     db: gconfig.r.database,
@@ -35,8 +37,11 @@ async function start() {
     await builder.build();
   }
 
-
   const routes = {
+    async privacy_version({ ctx, next }) {
+      ctx.assert(ctx.method === 'GET', 405);
+      ctx.body = privacy_version;
+    },
     async login({ ctx, next }) {
       ctx.assert(ctx.method === 'POST', 405, 'Must login using POST');
       let { code, redirect_uri } = ctx.request.body;

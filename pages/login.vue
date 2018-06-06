@@ -47,7 +47,7 @@ export default {
       this.$axios.setHeader("Authorization", token);
       this.$store.commit("setUser", user);
 
-      this.$router.push("/");
+      this.$router.push(user.privacyAccept ? "/" : "/privacy");
     }
   }
 };
