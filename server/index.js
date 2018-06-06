@@ -77,7 +77,6 @@ async function start() {
       ctx.assert(id, 403, 'Unauthorized');
 
       let { accept } = ctx.request.body;
-      accept = accept === true;
       await r.table('user').get(id.id).update({
         privacyAccept: accept
       });
