@@ -28,9 +28,7 @@
 
 <script>
 export default {
-  mounted() {
-    console.log(this.$router);
-  },
+  mounted() {},
   methods: {
     logout() {
       localStorage.removeItem("token");

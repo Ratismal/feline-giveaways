@@ -333,9 +333,7 @@ var start = function () {
                         case 0:
                           ctx.assert(ctx.method === 'POST', 405, 'Must login using POST');
                           _ctx$request$body = ctx.request.body, code = _ctx$request$body.code, redirect_uri = _ctx$request$body.redirect_uri;
-
-                          console.log(code, redirect_uri);
-                          _context2.next = 5;
+                          _context2.next = 4;
                           return __WEBPACK_IMPORTED_MODULE_4_snekfetch___default.a.post('https://discordapp.com/api/oauth2/token').set({
                             'Content-Type': 'application/x-www-form-urlencoded'
                           }).send({
@@ -347,15 +345,15 @@ var start = function () {
                             scope: 'identify'
                           });
 
-                        case 5:
+                        case 4:
                           res = _context2.sent;
                           token = res.body;
-                          _context2.next = 9;
+                          _context2.next = 8;
                           return __WEBPACK_IMPORTED_MODULE_4_snekfetch___default.a.get('https://discordapp.com/api/v6/users/@me').set({
                             Authorization: token.token_type + ' ' + token.access_token
                           });
 
-                        case 9:
+                        case 8:
                           res = _context2.sent;
                           user = res.body;
                           data = {
@@ -365,7 +363,7 @@ var start = function () {
 
                           ctx.body = JSON.stringify(data);
 
-                        case 13:
+                        case 12:
                         case 'end':
                           return _context2.stop();
                       }
@@ -495,34 +493,33 @@ var start = function () {
                         ctx.status = 200; // koa defaults to 404 when it sees that status is unset
 
                         if (!ctx.path.startsWith('/api/')) {
-                          _context5.next = 15;
+                          _context5.next = 14;
                           break;
                         }
 
-                        console.log(ctx.method);
                         path = ctx.path.split('/').slice(2);
                         route = routes[path[0].toLowerCase()];
 
                         if (!route) {
-                          _context5.next = 12;
+                          _context5.next = 11;
                           break;
                         }
 
-                        _context5.next = 10;
+                        _context5.next = 9;
                         return route({ ctx: ctx, next: next, path: path });
 
-                      case 10:
-                        _context5.next = 13;
+                      case 9:
+                        _context5.next = 12;
                         break;
 
-                      case 12:
+                      case 11:
                         ctx.throw(404);
 
-                      case 13:
-                        _context5.next = 16;
+                      case 12:
+                        _context5.next = 15;
                         break;
 
-                      case 15:
+                      case 14:
                         return _context5.abrupt('return', new Promise(function (resolve, reject) {
                           ctx.res.on('close', resolve);
                           ctx.res.on('finish', resolve);
@@ -532,7 +529,7 @@ var start = function () {
                           });
                         }));
 
-                      case 16:
+                      case 15:
                       case 'end':
                         return _context5.stop();
                     }

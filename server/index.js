@@ -45,7 +45,6 @@ async function start() {
     async login({ ctx, next }) {
       ctx.assert(ctx.method === 'POST', 405, 'Must login using POST');
       let { code, redirect_uri } = ctx.request.body;
-      console.log(code, redirect_uri);
       let res = await sf.post('https://discordapp.com/api/oauth2/token')
         .set({
           'Content-Type': 'application/x-www-form-urlencoded'
@@ -111,7 +110,6 @@ async function start() {
     ctx.status = 200; // koa defaults to 404 when it sees that status is unset
 
     if (ctx.path.startsWith('/api/')) {
-      console.log(ctx.method);
       let path = ctx.path.split('/').slice(2);
       let route = routes[path[0].toLowerCase()];
       if (route) {
