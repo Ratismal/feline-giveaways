@@ -31,15 +31,18 @@ export default {
   },
   methods: {
     async login() {
+      console.log("Getting token");
       const { token } = await this.$axios.$post("/login", {
         code: this.$route.query.code,
         redirect_uri: this.redirect_uri
       });
+      console.log("Getting user");
       const user = await this.$axios.$get("/users/@me", {
         headers: {
           Authorization: token
         }
       });
+      console.log(user);
       localStorage.setItem("token", token);
       this.$axios.setHeader("Authorization", token);
       this.$store.commit("setUser", user);
