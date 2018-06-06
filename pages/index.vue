@@ -2,26 +2,33 @@
   <div class='box'>
     <section class='container'>
       <h1 class="title center">
-        feline giveaways
+        Feline Giveaways
       </h1>
-      <p class='center'>an interface for password-protected discord giveaways</P>
+      <p class='center'>An interface for password-protected discord giveaways</p>
       <div class='flex-row'>
-        <nuxt-link class="flex-row-item button" to="/about">
-          about
+        <nuxt-link class="flex-row-item" to="/about">
+          About
         </nuxt-link>
         <div class='flex-row-separator'></div>
-        <nuxt-link class="flex-row-item button" to="/privacy">
-          privacy
+        <nuxt-link class="flex-row-item" to="/privacy">
+          Privacy
         </nuxt-link>
         <div class='flex-row-separator'></div>
-        <nuxt-link v-if="!$store.state.user" class="flex-row-item button" to="/login">
-          log in
+        <nuxt-link v-if="!$store.state.user" class="flex-row-item" to="/login">
+          Log In
         </nuxt-link>
-        <a v-else class="flex-row-item button" @click.prevent="logout">
-          log out
+        <a v-else class="flex-row-item" @click.prevent="logout">
+          Log Out
         </a>
       </div>
-      
+      <div v-if="$store.state.user" class='button-bar'>
+        <nuxt-link class='button' to="/create">
+          create a giveaway
+        </nuxt-link>
+        <nuxt-link class='button' to="/manage">
+          manage giveaways
+        </nuxt-link>
+      </div>
     </section>
   </div>
 </template>

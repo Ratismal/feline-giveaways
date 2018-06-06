@@ -1,12 +1,15 @@
 <template>
   <div>
     <nuxt/>
+    <welcome v-if="$store.state.user"/>    
   </div>
 </template>
 
 <script>
+import Welcome from '../components/Welcome.vue';
+
 export default {
-  components: {},
+  components: {Welcome},
   mounted() {
     if (
       this.$store.state.user &&

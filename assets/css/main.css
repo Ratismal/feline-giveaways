@@ -1,14 +1,25 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat');
+@import url('https://fonts.googleapis.com/css?family=Montserrat|Oxygen|Nova+Mono');
 
 :root {
   --background-primary: #232323;
   --text-primary: #eaeaea;
 
+  --background-input: #343434;
+  --background-input-hover: #053b2d;
+  
+
   --text-link: #15edb3;
   --text-link-hover: #12ce9c;
+  --background-link: rgba(10,102,77,0.2);
   --background-link-hover: rgba(10,102,77,0.5);
 
-  --typeface-primary: 'Montserrat', sans-serif;
+  --background-danger: rgba(191, 0, 0, 0.2);
+  --background-danger-hover: rgba(191, 0, 0, 0.5);
+  --text-danger: #e50000;
+
+  --typeface-primary: 'Oxygen', sans-serif;
+  --typeface-headings: 'Montserrat', sans-serif;
+  --typeface-monospace: 'Nova Mono', monospace;
 }
 
 html, body
@@ -21,10 +32,19 @@ html, body
   max-height: 100vh;
   margin: 0;
   padding: 0;
-  box-sizing:border-box;
+  box-sizing: border-box;
 }
-#__nuxt, #__layout, #__layout > div {
-  height: 100vh;
+
+.monospace {
+  font-family: var(--typeface-monospace);
+}
+
+p, a, button, h1, h2, h3, h4, h5, span {
+  text-transform: lowercase;
+}
+
+.maintain-case {
+  text-transform: none;
 }
 
 .container {
@@ -34,16 +54,55 @@ html, body
   width: 100%;
 }
 
+h1, h2, h3, h4, h5, .title {
+  font-family: var(--typeface-headings);
+}
+
+h4 {
+  font-size: 1.2rem;
+}
+
+h1.title {
+  font-size: 2.5em;  
+}
+
 .title {
   margin: 0 0 20px 0;
   font-weight: normal;
-  font-size: 2.5em;
   letter-spacing: 2.1px;
+}
+.title .subtitle {
+  display: block;
+  font-size: 0.60em;
+  text-align: center;
+  max-width: 80%;
+  margin: 10px auto;
+}
+
+.welcome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 10px;
+}
+
+.welcome span {
+  font-family: var(--typeface-headings);
+}
+
+@media only screen and (max-width: 768px) {
+  .welcome {
+    bottom: 0;
+    top: initial;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
 }
 
 .box {
   display: block;
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   align-items: center;
 }
@@ -67,10 +126,80 @@ p {
   margin: 5px 0;
 }
 
+.grid-container {
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  align-items: center;
+}
+
+.grid-container > * {
+  margin: 5px;
+}
+
+.grid-span-1 {
+  grid-column: auto / span 1;  
+}
+.grid-span-2 {
+  grid-column: auto / span 2;
+}
+.grid-span-3 {
+  grid-column: auto / span 3;
+}
+.grid-span-4 {
+  grid-column: auto / span 4;
+}
+
+.text-danger {
+  color: var(--text-danger) !important;
+}
+.danger {
+  background-color: var(--background-danger) !important;
+}
+.danger.hover:hover {
+  background-color: var(--background-danger-hover) !important;
+}
+
 .flex-row-separator {
   width: 1px;
   margin: 6px 10px;
   background: rgba(255,255,255,0.3);
+}
+
+.button-bar {
+  display: flex;
+  width: 60%;
+  min-width: 500px;
+  margin: 20px auto;
+}
+
+.button-bar > a.button {
+  flex: 1 0 auto;
+  max-width: 100%;
+}
+
+a.button.small, a.button.small:focus, a.button.small:visited {
+  padding: 5px 0;
+  margin: 5px 0;
+  width: 100%;
+  display: block;
+}
+
+a.button.small:hover {
+  padding: 5px 0;
+  margin: 5px 0;
+}
+
+a.button, a.button:focus, a.button:visited {
+  display: block;
+  font-size: 1.3rem;
+  text-align: center;
+  padding: 15px;
+  margin: 5px;
+  background: var(--background-link);
+}
+a.button:hover {
+  margin: 2px;
+  padding: 18px;
 }
 
 a, a:focus, a:visited {
@@ -79,6 +208,7 @@ a, a:focus, a:visited {
   padding: 5px;
   border-radius: 3px;
   transition-duration: 0.2s;
+  cursor: pointer;
 }
 a:hover {
   color: var(--text-link-hover);
@@ -93,4 +223,95 @@ a:hover {
 .page-enter, .page-leave-active
 {
   opacity: 0
+}
+
+
+/**
+  Form
+**/
+label, input, textarea {  
+  font-family: var(--typeface-primary);
+  text-transform: lowercase;
+}
+
+label {
+  font-size: 1.2em;
+}
+
+label input[type=text], label textarea {
+  background: var(--background-input);
+  border: none;
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  font-size: 1em;
+  color: var(--text-primary);
+  transition-duration: 0.2s;
+  border-bottom: 2px var(--background-input) solid;  
+  box-sizing: border-box;
+}
+
+label textarea {
+  height: 100px;
+  resize: none;
+}
+
+input[type=text]:focus, textarea:focus {
+  border-bottom: 2px var(--text-link) solid;  
+}
+
+input:focus, textarea:focus {
+  outline: none;
+}
+
+label.checkbox-container {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  padding-left: 45px;
+  margin: 0 auto;
+}
+label.checkbox-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+label.checkbox-container .checkbox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 30px;
+  width: 30px;
+  background-color: var(--background-input);
+  border-bottom: 2px var(--background-input) solid;    
+  border-radius: 5px;
+  transition-duration: 0.2s;
+}
+label.checkbox-container:hover input ~ .checkbox,
+label.checkbox-container:focus input ~ .checkbox {
+  border-bottom: 2px var(--text-link) solid;  
+}
+/* Create the checkmark/indicator (hidden when not checked) */
+label.checkbox-container .checkbox:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+label.checkbox-container input:checked ~ .checkbox:after {
+  display: block;
+}
+/* Style the checkmark/indicator */
+label.checkbox-container .checkbox:after {
+  left: 10px;
+  top: 3px;
+  width: 8px;
+  height: 17px;
+  border: solid var(--text-link);
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
 }

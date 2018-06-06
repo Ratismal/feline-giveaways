@@ -2,31 +2,33 @@
   <div class='box'>
     <section class='container'>
       <h1 class="title center">
-        privacy policy v{{ version }}
+        Privacy Policy
+        <span class='subtitle'>Version {{ version }}</span>
       </h1>
-      <p class='center'>by using feline giveaways, i acknowledge and agree that the service</P>
+      
+      <p class='center'>By using Feline Giveaways, I acknowledge and agree that the service</P>
       <ol class='terms-list'>
-        <li>may look up my username, discriminator, id, and avatar as a general authentication procedure</li>
-        <li>keeps track of which giveaways i've created and/or entered into</li>
+        <li>may look up my username, discriminator, ID, and avatar as a general authentication procedure</li>
+        <li>keeps track of which giveaways I've created and/or entered into</li>
         <li>may share the list of members who entered a giveaway with the giveaway's creator</li>
-        <li>may store whether i've agreed to these terms</li>
+        <li>may store whether I've agreed to these terms</li>
       </ol>
       <div v-if="$store.state.user !== null && !accepted" class='flex-row'>
-        <a class="flex-row-item button" @click.prevent="logout">
-          log out
+        <a class="flex-row-item" @click.prevent="logout">
+          Log Out
         </a>
         <div class='flex-row-separator'></div>          
-        <a class="flex-row-item button" @click.prevent="accept">
-          accept
+        <a class="flex-row-item" @click.prevent="accept">
+          Accept
         </a>
       </div>
       <div v-else class='flex-row'>
-        <nuxt-link class="flex-row-item button" to="/">
-          back
-        </nuxt-link>
+        <a class="flex-row-item" @click.prevent="$router.go(-1);">
+          Back
+        </a>
         <div v-if="$store.state.user !== null" class='flex-row-separator'></div>
-        <a v-if="$store.state.user !== null" class="flex-row-item button" @click.prevent="reject">
-          reject
+        <a v-if="$store.state.user !== null" class="flex-row-item" @click.prevent="reject">
+          Reject
         </a>
       </div>
     </section>
@@ -70,6 +72,12 @@ export default {
 </script>
 
 <style scoped>
+@media only screen and (max-width: 768px) {
+  .terms-list {
+    max-width: 280px !important;
+  }
+}
+
 .terms-list {
   text-align: center;
   max-width: 400px;

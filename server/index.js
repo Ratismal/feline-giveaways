@@ -5,10 +5,12 @@ import sf from 'snekfetch';
 import gconfig from '../config';
 import Security from './security';
 import rethinkdbdash from 'rethinkdbdash';
+import words from '../words.json';
 
 async function start() {
   const privacy_version = 1;
 
+  // TODO: use an actually good database
   const r = rethinkdbdash({
     host: gconfig.r.host,
     db: gconfig.r.database,
@@ -37,7 +39,60 @@ async function start() {
     await builder.build();
   }
 
+  function generateId() {
+    let array = [];
+    for (let i = 0; i < 4; i++) {
+      let word = words[Math.floor(Math.random() * words.length)];
+      word = word.substring(0, 1).toUpperCase() + word.substring(1);
+      array.push(word);
+    }
+    return array.join('');
+  }
+
   const routes = {
+    async create_giveaway({ ctx, next, path }) {
+      ctx.assert(ctx.method === 'POST', 405);
+      let id = Security.validateToken(ctx.req.headers.authorization);
+      ctx.assert(id !== null, 403);
+      id = id.id;
+
+      let giveawayId
+      let event;
+      do {
+        giveawayId = generateId();;
+        event = await r.table('giveaway').get(giveawayId);
+      } while (event)
+      let data = ctx.request.body;
+
+      data.id = giveawayId;
+      data.owner = id;
+      await r.table('giveaway').insert(data);
+      ctx.body = giveawayId;
+    },
+    async giveaway({ ctx, next, path }) {
+      let id = Security.validateToken(ctx.req.headers.authorization);
+      ctx.assert(id !== null, 403);
+      id = id.id;
+
+      switch (ctx.method) {
+        case 'GET':
+          ctx.assert(path.length === 2, 400);
+          let giveawayId = path[1];
+          let event = await r.table('giveaway').get(giveawayId);
+          if (!event) ctx.throw(404);
+          event.data.entered = event.data.users.includes(id);
+          event.data.password = undefined;
+          event.data.webhook = undefined;
+          event.data.users = undefined;
+          ctx.body = JSON.stringify(event);
+          break;
+        case 'POST':
+          break;
+        default:
+          ctx.throw(405);
+          break;
+      }
+    },
     async privacy_version({ ctx, next }) {
       ctx.assert(ctx.method === 'GET', 405);
       ctx.body = privacy_version;

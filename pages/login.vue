@@ -2,8 +2,13 @@
   <div class='box'>
     <section class='container'>
       <h1 class='title center'>
-        logging in...
+        Logging In...
       </h1>
+      <div class='flex-row'>
+        <a class="flex-row-item" @click.prevent="$router.go(-1);">
+          Back
+        </a>
+      </div>
     </section>
   </div>
 </template>
