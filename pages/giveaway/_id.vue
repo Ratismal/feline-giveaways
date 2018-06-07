@@ -41,7 +41,7 @@
 
       <div v-if="$store.state.user.id === owner" class='button-bar'>
           <nuxt-link v-if="!winner" class='button' :to="'/edit/' + id">Edit Giveaway</nuxt-link>
-          <a v-if="!expiredNoWinner" class='button' @click.prevent="announceGiveaway">Announce Giveaway</a>
+          <a v-if="!expired && !winner" class='button' @click.prevent="announceGiveaway">Announce Giveaway</a>
           <a v-if="winner" class='button' @click.prevent="announceGiveaway">Announce Winner</a>
           <a v-if="!winner && data.viableEntries > 0" class='button' @click.prevent="forceDraw">draw now</a>
           <a v-if="winner && data.viableEntries > 0" class='button' @click.prevent="forceDraw">redraw winner</a>
