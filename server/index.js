@@ -178,7 +178,8 @@ async function start() {
 
       await r.table('giveaway').get(event.id).update({
         winners: event.winners,
-        winner: event.winner
+        winner: event.winner,
+        expired: true
       });
       await announceWinner({ ctx, event });
     } catch (err) {
@@ -189,7 +190,8 @@ async function start() {
   }
 
   let eventInterval = setInterval(async () => {
-    let events = await r.table('giveaway').between(r.minval, Date.now(), { index: 'timestamp' });
+    let events = await r.table('giveaway').between([false, r.minval], [false, Date.now()],
+      { index: 'expiredAndTimestamp' });
     for (const event of events) {
       await chooseWinner({ event });
     }
@@ -212,6 +214,7 @@ async function start() {
 
       data.id = giveawayId;
       data.owner = id;
+      data.expired = false;
       await r.table('giveaway').insert(data);
       await announceGiveaway({ ctx, event: data });
 
@@ -231,9 +234,9 @@ async function start() {
           let event = await r.table('giveaway').get(giveawayId);
           if (!event) ctx.throw(404, 'Event not found');
 
-          if (event.data.timestamp <= Date.now()) {
-            await chooseWinner({ ctx, event });
-          }
+          // if (event.data.timestamp <= Date.now() && !event.winner) {
+          //   await chooseWinner({ ctx, event });
+          // }
           event.data.entries = event.data.users.length;
           event.data.viableEntries = event.data.entries - ((event.winners || []).length);
           event.data.entered = event.data.users.includes(id);
@@ -244,7 +247,6 @@ async function start() {
           break;
         }
         case 'POST': {
-          console.log('post');
           ctx.assert(path.length === 3, 400, 'Endpoint not provided');
           let giveawayId = path[1];
           let event = await r.table('giveaway').get(giveawayId);
@@ -263,8 +265,6 @@ async function start() {
                 });
                 ctx.body = "true";
               } else ctx.body = "false";
-
-              console.log(ctx.body);
               break;
             }
             case 'draw': {
@@ -279,7 +279,6 @@ async function start() {
               break;
             }
             case 'announce': {
-              console.log('announce');
               ctx.assert(id === event.owner, 403, 'You do not own this event');
               if (event.winner)
                 await announceWinner({ ctx, event });

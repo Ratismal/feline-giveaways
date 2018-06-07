@@ -52,14 +52,16 @@
 </template>
 <script>
 export default {
-  asyncData({ params, $axios }) {
-    console.log(params.id);
-    return $axios.$get("/giveaway/" + params.id).then(data => {
-      return Object.assign(
-        { id: params.id, winner: null, noWinner: null },
-        data
-      );
-    });
+  asyncData({ params, $axios, $router, $store }) {
+    return $axios
+      .$get("/giveaway/" + params.id)
+      .then(data => {
+        return Object.assign(
+          { id: params.id, winner: null, noWinner: null },
+          data
+        );
+      })
+      .catch(err => {});
   },
   data() {
     return {
@@ -94,19 +96,17 @@ export default {
       );
     },
     expiredNoWinner() {
-      return !this.winner && this.data.timestamp < Date.now();
+      return this.expired && !this.winner && this.data.timestamp < Date.now();
     }
   },
   mounted() {
-    console.log(this.noWinner);
+    if (!this.$store.state.user) this.$router.push("/login");
     this.duration = window.moment.duration(this.data.timestamp - Date.now());
     if (this.winner) this.complete = true;
-    console.log(this.winner, this.complete);
     this.updateTime();
     this.interval = setInterval(() => {
       this.updateTime();
     }, 1000);
-    console.log(this.duration);
   },
   head() {
     return {};
@@ -120,11 +120,21 @@ export default {
         this.time.hours = 0;
         this.time.minutes = 0;
         this.time.seconds = 0;
-        this.complete = true;
         if (!this.winner) {
-          let event = await this.$axios.$get("/giveaway/" + this.id);
-          this.winner = event.winner;
-        }
+          let interval = setInterval(async () => {
+            let event = await this.$axios.$get("/giveaway/" + this.id);
+            this.winner = event.winner;
+            this.winners = event.winners;
+            this.expired = event.expired;
+            this.data.entries = event.data.entries;
+            this.data.viableEntries = event.data.viableEntries;
+
+            if (this.winner) {
+              clearInterval(interval);
+              this.complete = true;
+            }
+          }, 1000 * 15);
+        } else this.complete = true;
       }
       this.time.days = this.duration.days();
       this.time.hours = this.duration.hours();
@@ -139,7 +149,6 @@ export default {
             password: this.password
           }
         );
-        console.log(response);
         if (!response) {
           this.errorMessage = "Incorrect password";
         } else {
@@ -155,11 +164,9 @@ export default {
         let data = await this.$axios.$post("/giveaway/" + this.id + "/draw");
         this.winner = data.winner;
         this.winners = data.winners;
-        console.log(data);
         this.data.users = data.users;
         this.data.entries = data.users.length;
         this.data.viableEntries = data.users.length - data.winners.length;
-        console.log(this.data);
         this.complete = true;
       } catch (err) {
         console.error(err);
@@ -168,7 +175,6 @@ export default {
     },
     async announceGiveaway() {
       try {
-        console.log("announcing giveaway");
         await this.$axios.$post("/giveaway/" + this.id + "/announce");
         this.successMessage = "announced!";
       } catch (err) {
