@@ -29,39 +29,57 @@
     </label>
 
     <dropdown title-disabled="Show Webhook Options" title-enabled="Hide Webhook Options">
-      <label for="webhook">
-        Webhook URL
-        <input v-model="data.webhook.url" type="text" name="webhook">
-      </label>
+      <div class='grid-container'>
+        <label for="webhook" class='grid-span-4'>
+          Webhook URL
+          <input v-model="data.webhook.url" type="text" name="webhook">
+        </label>
 
-      <h2>announce giveaway</h2>
-      <label class='checkbox-container'>
-        Enabled      
-        <input v-model="data.webhook.announceGiveaway.enabled" type="checkbox">
-        <span class='checkbox'></span>
-      </label>
-      <label>
-        content
-        <textarea v-model="data.webhook.announceGiveaway.content">
-        </textarea>
-      </label>
-      <dropdown title="Embed">
-        <embed-builder :embed="data.webhook.announceGiveaway.embed"/>
-      </dropdown>
-      <h2>announce winner</h2>
-      <label class='checkbox-container'>
-        Enabled      
-        <input v-model="data.webhook.announceWinner.enabled" type="checkbox">
-        <span class='checkbox'></span>
-      </label>
-      <label>
-        content
-        <textarea v-model="data.webhook.announceWinner.content">
-        </textarea>
-      </label>
-      <dropdown title="Embed">
-        <embed-builder :embed="data.webhook.announceWinner.embed"/>
-      </dropdown>
+        <h2 class='grid-span-4'>announce giveaway</h2>
+        <label class='checkbox-container grid-span-4 no-center'>
+          Enabled      
+          <input v-model="data.webhook.announceGiveaway.enabled" type="checkbox">
+          <span class='checkbox'></span>
+        </label>
+        <label class='grid-span-2'>
+          Webhook Username
+          <input v-model="data.webhook.announceGiveaway.username" type="text">
+        </label>
+        <label class='grid-span-2'>
+          Webhook Avatar URl
+          <input v-model="data.webhook.announceGiveaway.avatar_url" type="text">
+        </label>
+        <label class='grid-span-4'>
+          content
+          <textarea v-model="data.webhook.announceGiveaway.content">
+          </textarea>
+        </label>
+        <dropdown title="Embed" class='grid-span-4'>
+          <embed-builder :embed="data.webhook.announceGiveaway.embed"/>
+        </dropdown>
+
+        <h2 class='grid-span-4'>announce winner</h2>
+        <label class='checkbox-container grid-span-4 no-center'>
+          Enabled      
+          <input v-model="data.webhook.announceWinner.enabled" type="checkbox">
+          <span class='checkbox'></span>
+        </label><label class='grid-span-2'>
+          Webhook Username
+          <input v-model="data.webhook.announceWinner.username" type="text">
+        </label>
+        <label class='grid-span-2'>
+          Webhook Avatar URl
+          <input v-model="data.webhook.announceWinner.avatar_url" type="text">
+        </label>
+        <label class='grid-span-4'>
+          content
+          <textarea v-model="data.webhook.announceWinner.content">
+          </textarea>
+        </label>
+        <dropdown title="Embed" class='grid-span-4'>
+          <embed-builder :embed="data.webhook.announceWinner.embed"/>
+        </dropdown>
+      </div>
     </dropdown>
 
     <label v-if="edit" class='checkbox-container'>
@@ -231,3 +249,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.no-center {
+  margin: 5px !important;
+}
+</style>

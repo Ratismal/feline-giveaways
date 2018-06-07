@@ -11,6 +11,7 @@
         Title URL
         <input v-model="embed.url" type="text">
       </label>
+
       <label class='grid-span-4'>
         Description
         <textarea v-model="embed.description"></textarea>
@@ -90,14 +91,14 @@
 </template>
 
 <script>
-import Dropdown from '~/components/Dropdown.vue';
+import Dropdown from "~/components/Dropdown.vue";
 
 export default {
-  components: {Dropdown},
+  components: { Dropdown },
   props: {
     embed: {
       type: Object,
-      default: ()=>({
+      default: () => ({
         fields: [],
         image: {},
         thumbnail: {},
@@ -110,11 +111,11 @@ export default {
   computed: {
     color: {
       get() {
-        let color = this.rcolor.replace(/[^0-9a-f]/gi, '').substring(0, 6);
-        return '#' + color;
+        let color = this.rcolor.replace(/[^0-9a-f]/gi, "").substring(0, 6);
+        return "#" + color;
       },
       set(value) {
-        let color = value.replace(/[^0-9a-f]/gi, '').substring(0, 6);
+        let color = value.replace(/[^0-9a-f]/gi, "").substring(0, 6);
         this.embed.color = parseInt(color, 16);
         if (isNaN(this.embed.color)) this.embed.color = 0;
         this.rcolor = value;
@@ -128,23 +129,28 @@ export default {
     if (!this.embed.author) this.embed.author = {};
     if (!this.embed.footer) this.embed.footer = {};
     if (!this.embed.color) this.embed.color = 0;
-    this.rcolor = this.embed.color.toString(16).padStart(6, '0');
+    this.rcolor = this.embed.color.toString(16).padStart(6, "0");
   },
   data() {
     return {
-      rcolor: '000000',
+      rcolor: "000000",
       counter: 0
     };
   },
   methods: {
     addField() {
-      this.embed.fields.push({name: '', value: '', inline: true, id: this.counter++});
+      this.embed.fields.push({
+        name: "",
+        value: "",
+        inline: true,
+        id: this.counter++
+      });
     },
     removeField(id) {
       this.embed.fields = this.embed.fields.filter(f => f.id !== id);
     }
   }
-};  
+};
 </script>
 
 <style scoped>
