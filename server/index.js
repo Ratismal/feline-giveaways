@@ -266,7 +266,6 @@ async function start() {
           let giveawayId = path[1];
           let event = await r.table('giveaway').get(giveawayId);
           if (!event) ctx.throw(404, 'Event not found');
-
           // if (event.data.timestamp <= Date.now() && !event.winner) {
           //   await chooseWinner({ ctx, event });
           // }
