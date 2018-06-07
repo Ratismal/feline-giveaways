@@ -40,13 +40,18 @@
       </div>
 
       <div v-if="$store.state.user.id === owner" class='button-bar'>
-          <nuxt-link class='button' :to="'/giveaway/' + id + '/edit'">Edit Giveaway</nuxt-link>
-          <a v-if="!expired && !winner" class='button' @click.prevent="announceGiveaway">Announce Giveaway</a>
-          <a v-if="winner" class='button' @click.prevent="announceGiveaway">Announce Winner</a>
-          <a v-if="!winner && data.viableEntries > 0" class='button' @click.prevent="forceDraw">draw now</a>
-          <a v-if="winner && data.viableEntries > 0" class='button' @click.prevent="forceDraw">redraw winner</a>
-        </div>
+        <nuxt-link class='button' :to="'/giveaway/' + id + '/edit'">Edit Giveaway</nuxt-link>
+        <a v-if="!expired && !winner" class='button' @click.prevent="announceGiveaway">Announce Giveaway</a>
+        <a v-if="winner" class='button' @click.prevent="announceGiveaway">Announce Winner</a>
+        <a v-if="!winner && data.viableEntries > 0" class='button' @click.prevent="forceDraw">draw now</a>
+        <a v-if="winner && data.viableEntries > 0" class='button' @click.prevent="forceDraw">redraw winner</a>
+      </div>
 
+      <div class='flex-row'>
+        <nuxt-link class="flex-row-item" to="/">
+          Home
+        </nuxt-link>
+      </div>
     </section>
   </div>
 </template>

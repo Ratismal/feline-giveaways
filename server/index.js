@@ -210,6 +210,9 @@ async function start() {
       id = id.id;
 
       let giveaways = await r.table('giveaway').getAll(id, { index: 'owner' });
+      giveaways.sort((a, b) => {
+        return b.data.timestamp - a.data.timestamp;
+      });
       let data = { ongoing: [], expired: [] };
       for (const g of giveaways) {
         data[g.expired ? 'expired' : 'ongoing'].push(g);
@@ -250,7 +253,7 @@ async function start() {
           ctx.assert(id === event.owner, 403);
           let data = ctx.request.body;
           await r.table('giveaway').get(giveawayId).update({
-            expired: data.resetWinners ? false : undefined,
+            expired: data.resetWinners || (data.data.timestamp > event.data.timestamp) ? false : undefined,
             data: r.literal(data.data),
             winner: data.resetWinners ? r.literal(null) : undefined,
             winners: data.resetWinners ? r.literal([]) : undefined

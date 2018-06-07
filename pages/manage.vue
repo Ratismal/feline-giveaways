@@ -5,8 +5,8 @@
           Manage Giveaways
       </h1>
       
-      <div v-if="ongoing.length === 0 && expired.length === 0">
-        You do not have any giveaways.
+      <div v-if="ongoing.length === 0 && expired.length === 0" class='center'>
+        you do not have any giveaways.
       </div>
 
       <div v-if="ongoing.length > 0">
@@ -24,6 +24,12 @@
             <giveaway-card :g="g"/>
           </div>
         </div>
+      </div>
+
+      <div class='flex-row'>
+        <nuxt-link class="flex-row-item" to="/">
+          Home
+        </nuxt-link>
       </div>
 
     </section>
