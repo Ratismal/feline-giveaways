@@ -195,33 +195,13 @@ async function start() {
     let events = await r.table('giveaway').between([false, r.minval], [false, Date.now()],
       { index: 'expiredAndTimestamp' });
     for (const event of events) {
-      await chooseWinner({ event });
+      if ((event.beta && gconfig.beta)
+        || (!event.beta && !gconfig.beta))
+        await chooseWinner({ event });
     }
   }, 1000 * 60);
 
   const routes = {
-    async create_giveaway({ ctx, next, path }) {
-      ctx.assert(ctx.method === 'POST', 405);
-      let id = Security.validateToken(ctx.req.headers.authorization);
-      ctx.assert(id !== null, 403);
-      id = id.id;
-
-      let giveawayId;
-      let event;
-      do {
-        giveawayId = generateId();;
-        event = await r.table('giveaway').get(giveawayId);
-      } while (event);
-      let data = ctx.request.body;
-
-      data.id = giveawayId;
-      data.owner = id;
-      data.expired = false;
-      await r.table('giveaway').insert(data);
-      await announceGiveaway({ ctx, event: data });
-
-      ctx.body = giveawayId;
-    },
     async giveaways({ ctx, next, path }) {
       ctx.assert(ctx.method === 'GET', 405);
       ctx.assert(path.length === 1);
@@ -244,6 +224,40 @@ async function start() {
       console.log(ctx.method, ctx.path);
 
       switch (ctx.method) {
+        case 'PUT': {
+          let giveawayId;
+          let event;
+          do {
+            giveawayId = generateId();;
+            event = await r.table('giveaway').get(giveawayId);
+          } while (event);
+          let data = ctx.request.body;
+
+          data.id = giveawayId;
+          data.owner = id;
+          data.expired = false;
+          data.beta = gconfig.beta === true;
+          await r.table('giveaway').insert(data);
+          // await announceGiveaway({ ctx, event: data });
+
+          ctx.body = giveawayId;
+          break;
+        }
+        case 'PATCH': {
+          ctx.assert(path.length === 2, 404, 'Endpoint not found');
+          let giveawayId = path[1];
+          let event = await r.table('giveaway').get(giveawayId);
+          ctx.assert(id === event.owner, 403);
+          let data = ctx.request.body;
+          await r.table('giveaway').get(giveawayId).update({
+            expired: data.resetWinners ? false : undefined,
+            data: r.literal(data.data),
+            winner: data.resetWinners ? r.literal(null) : undefined,
+            winners: data.resetWinners ? r.literal([]) : undefined
+          });
+          ctx.body = giveawayId;
+          break;
+        }
         case 'GET': {
           ctx.assert(path.length === 2, 404, 'Endpoint not found');
           let giveawayId = path[1];
@@ -256,10 +270,21 @@ async function start() {
           event.data.entries = event.data.users.length;
           event.data.viableEntries = event.data.entries - ((event.winners || []).length);
           event.data.entered = event.data.users.includes(id);
-          event.data.password = undefined;
-          event.data.webhook = undefined;
-          event.data.users = undefined;
+          if (event.owner !== id) {
+            event.data.password = undefined;
+            event.data.webhook = undefined;
+            event.data.users = undefined;
+          }
           ctx.body = JSON.stringify(event);
+          break;
+        }
+        case 'DELETE': {
+          ctx.assert(path.length === 2, 404, 'Endpoint not found');
+          let giveawayId = path[1];
+          let event = await r.table('giveaway').get(giveawayId);
+          ctx.assert(id === event.owner, 403);
+          await r.table('giveaway').get(event.id).delete();
+          ctx.body = "true";
           break;
         }
         case 'POST': {
