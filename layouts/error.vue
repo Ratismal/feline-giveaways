@@ -9,6 +9,7 @@
         <nuxt-link class="flex-row-item" to="/">
           Home
         </nuxt-link>
+        <div class='separator'></div>
         <a class="flex-row-item" @click.prevent="$router.go(-1);">
           Back
         </a>
