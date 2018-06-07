@@ -222,6 +222,20 @@ async function start() {
 
       ctx.body = giveawayId;
     },
+    async giveaways({ ctx, next, path }) {
+      ctx.assert(ctx.method === 'GET', 405);
+      ctx.assert(path.length === 1);
+      let id = Security.validateToken(ctx.req.headers.authorization);
+      ctx.assert(id !== null, 403);
+      id = id.id;
+
+      let giveaways = await r.table('giveaway').getAll(id, { index: 'owner' });
+      let data = { ongoing: [], expired: [] };
+      for (const g of giveaways) {
+        data[g.expired ? 'expired' : 'ongoing'].push(g);
+      }
+      ctx.body = JSON.stringify(data);
+    },
     async giveaway({ ctx, next, path }) {
       let id = Security.validateToken(ctx.req.headers.authorization);
       ctx.assert(id !== null, 403);

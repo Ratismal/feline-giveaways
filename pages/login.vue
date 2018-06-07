@@ -20,16 +20,16 @@ export default {
     };
   },
   mounted() {
-    if (!this.$route.query.code) {
-      if (this.$store.state.user) this.$router.replace("/");
-      else
-        window.location.href =
-          "https://discordapp.com/oauth2/authorize" +
-          "?client_id=453716817639243779" +
-          "&scope=identify" +
-          "&response_type=code" +
-          "&redirect_uri=" +
-          encodeURIComponent(this.redirect_uri);
+    if (this.$store.state.user) {
+      return this.redirect(this.$store.state.user);
+    } else if (!this.$route.query.code) {
+      window.location.href =
+        "https://discordapp.com/oauth2/authorize" +
+        "?client_id=453716817639243779" +
+        "&scope=identify" +
+        "&response_type=code" +
+        "&redirect_uri=" +
+        encodeURIComponent(this.redirect_uri);
     } else {
       this.login();
     }
@@ -48,8 +48,17 @@ export default {
       localStorage.setItem("token", token);
       this.$axios.setHeader("Authorization", token);
       this.$store.commit("setUser", user);
-
-      this.$router.push(user.privacyAccept ? "/" : "/privacy");
+      this.redirect(user);
+    },
+    redirect(user) {
+      if (!user.privacyAccept) {
+        this.$router.push("/privacy");
+      } else {
+        if (localStorage.returnTo) {
+          this.$router.push(localStorage.returnTo);
+          localStorage.removeItem("returnTo");
+        } else this.$router.push("/");
+      }
     }
   }
 };

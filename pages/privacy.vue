@@ -56,7 +56,10 @@ export default {
     accept() {
       this.$axios.post("/privacy", { accept: this.version });
       this.$store.commit("setUserPrivacy", this.version);
-      this.$router.push("/");
+      if (localStorage.returnTo) {
+        this.$router.push(localStorage.returnTo);
+        localStorage.removeItem("returnTo");
+      } else this.$router.push("/");
     },
     reject() {
       this.$axios.post("/privacy", { accept: false });

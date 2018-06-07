@@ -100,7 +100,10 @@ export default {
     }
   },
   mounted() {
-    if (!this.$store.state.user) this.$router.push("/login");
+    if (!this.$store.state.user) {
+      localStorage.returnTo = this.$route.fullPath;
+      this.$router.push("/login");
+    }
     this.duration = window.moment.duration(this.data.timestamp - Date.now());
     if (this.winner) this.complete = true;
     this.updateTime();
@@ -115,7 +118,6 @@ export default {
     async updateTime() {
       this.duration = window.moment.duration(this.data.timestamp - Date.now());
       if (this.duration.asMilliseconds() <= 0) {
-        console.log("kms");
         clearInterval(this.interval);
         this.time.days = 0;
         this.time.hours = 0;
