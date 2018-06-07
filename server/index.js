@@ -158,7 +158,9 @@ async function start() {
       event.winners = [];
     // dont include past winners in the pool
     let users = event.data.users.filter(u => !event.winners.includes(u));
-    if (users.length === 0) return;
+    if (users.length === 0) return await r.table('giveaway').get(event.id).update({
+      expired: true
+    });
 
     let winner = users[Math.floor(Math.random() * users.length)];
 

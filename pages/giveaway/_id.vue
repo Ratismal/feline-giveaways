@@ -115,12 +115,13 @@ export default {
     async updateTime() {
       this.duration = window.moment.duration(this.data.timestamp - Date.now());
       if (this.duration.asMilliseconds() <= 0) {
+        console.log("kms");
         clearInterval(this.interval);
         this.time.days = 0;
         this.time.hours = 0;
         this.time.minutes = 0;
         this.time.seconds = 0;
-        if (!this.winner) {
+        if (!this.winner && !this.expired) {
           let interval = setInterval(async () => {
             let event = await this.$axios.$get("/giveaway/" + this.id);
             this.winner = event.winner;
@@ -129,12 +130,14 @@ export default {
             this.data.entries = event.data.entries;
             this.data.viableEntries = event.data.viableEntries;
 
-            if (this.winner) {
+            if (this.winner || this.expired) {
               clearInterval(interval);
               this.complete = true;
             }
           }, 1000 * 15);
         } else this.complete = true;
+
+        return;
       }
       this.time.days = this.duration.days();
       this.time.hours = this.duration.hours();
