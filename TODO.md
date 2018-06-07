@@ -1,6 +1,10 @@
 # stupid cat's todo list
 
-- [x] basic functionality
-- [x] managing (edit/delete) giveaways
 - [ ] twitter integration
 - [ ] make passwords optional
+
+## completed
+
+- [x] basic functionality
+- [x] managing (edit/delete) giveaways
+- [x] customize username/avatar for webhooks
