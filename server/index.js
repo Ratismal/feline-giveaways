@@ -6,6 +6,7 @@ import gconfig from '../config';
 import Security from './security';
 import rethinkdbdash from 'rethinkdbdash';
 import words from '../words.json';
+import moment from 'moment';
 
 async function start() {
   const privacy_version = 1;
@@ -49,6 +50,151 @@ async function start() {
     return array.join('');
   }
 
+  function formatOutput(obj, values) {
+    if (Array.isArray(obj)) {
+      for (let i = 0; i < obj.length; i++) {
+        let t = formatOutput(obj[i], values);
+        if (typeof obj[i] === 'string')
+          obj[i] = t;
+      }
+    } else if (typeof obj === 'object') {
+      for (const key in obj) {
+        let t = formatOutput(obj[key], values);
+        if (typeof obj[key] === 'string')
+          obj[key] = t;
+      }
+    } else if (typeof obj === 'string') {
+      let t = obj;
+      for (const key in values) {
+        t = t.replace(new RegExp('{{' + key + '}}', 'gi'), values[key]);
+      }
+      return t;
+    }
+    return obj;
+  }
+
+  function checkIfEmbedIsPopulated(embed) {
+    return embed.title == ''
+      && embed.description == ''
+      && embed.url == ''
+      && embed.author.name == ''
+      && embed.author.icon_url == ''
+      && embed.author.url == ''
+      && embed.footer.text == ''
+      && embed.footer.icon_url == ''
+      && embed.image.url == ''
+      && embed.image.thumbnail == ''
+      && embed.fields.length === 0
+      && embed.timestamp === false
+      && embed.color === 0;
+  }
+
+  async function announceGiveaway({ ctx, event }) {
+    if (!event.data.webhook.announceGiveaway.enabled)
+      return;
+
+    let embed = event.data.webhook.announceGiveaway.embed;
+    if (checkIfEmbedIsPopulated(embed))
+      event.data.webhook.announceGiveaway.embed = undefined;
+
+    let output = formatOutput(event.data.webhook.announceGiveaway, {
+      title: event.data.title,
+      desc: event.data.description,
+      entries: event.data.users.length,
+      link: (gconfig.origin || 'https://giveaways.stupidcat.me')
+        + '/giveaway/' + event.id
+    });
+
+    if (output.embed) {
+      if (output.embed.timestamp)
+        output.embed.timestamp = moment(event.data.timestamp);
+
+      if (output.embed.color === 0)
+        output.embed.color = undefined;
+
+      output.embeds = [output.embed];
+    }
+
+
+    await sf.post(event.data.webhook.url)
+      .send(output);
+  }
+
+  async function announceWinner({ ctx, event }) {
+    if (!event.data.webhook.announceWinner.enabled)
+      return;
+
+    let embed = event.data.webhook.announceWinner.embed;
+    if (checkIfEmbedIsPopulated(embed))
+      event.data.webhook.announceWinner.embed = undefined;
+
+    let output = formatOutput(event.data.webhook.announceWinner, {
+      title: event.data.title,
+      desc: event.data.description,
+      entries: event.data.users.length,
+      link: (gconfig.origin || 'https://giveaways.stupidcat.me')
+        + '/giveaway/' + event.id,
+      avatar: event.winner.avatarURL,
+      id: event.winner.id,
+      username: event.winner.username,
+      discrim: event.winner.discriminator
+    });
+
+    if (output.embed) {
+      if (output.embed.timestamp)
+        output.embed.timestamp = moment(event.winner.timestamp);
+      if (output.embed.color === 0)
+        output.embed.color = undefined;
+
+      output.embeds = [output.embed];
+    }
+
+    await sf.post(event.data.webhook.url)
+      .send(output);
+  }
+
+  async function chooseWinner({ ctx, event }) {
+    if (!event.winners)
+      event.winners = [];
+    // dont include past winners in the pool
+    let users = event.data.users.filter(u => !event.winners.includes(u));
+    if (users.length === 0) return;
+
+    let winner = users[Math.floor(Math.random() * users.length)];
+
+    event.winners.push(winner);
+    try {
+      let res = await sf.get('https://discordapp.com/api/v6/users/' + winner)
+        .set({
+          Authorization: 'Bot ' + gconfig.token
+        });
+
+      event.winner = res.body;
+      event.winner.avatarURL = 'https://cdn.discordapp.com/avatars/'
+        + event.winner.id + '/' + event.winner.avatar + '.'
+        + (event.winner.avatar.startsWith('a_') ? 'gif' : 'png');
+
+      event.winner.timestamp = Date.now();
+
+      await r.table('giveaway').get(event.id).update({
+        winners: event.winners,
+        winner: event.winner
+      });
+      await announceWinner({ ctx, event });
+    } catch (err) {
+      console.error(err);
+      if (ctx)
+        ctx.throw(500);
+    }
+  }
+
+  let eventInterval = setInterval(async () => {
+    let events = await r.table('giveaway').between(r.minval, Date.now(), { index: 'timestamp' });
+    for (const event of events) {
+      await chooseWinner({ event });
+    }
+  }, 1000 * 60);
+
   const routes = {
     async create_giveaway({ ctx, next, path }) {
       ctx.assert(ctx.method === 'POST', 405);
@@ -56,17 +202,19 @@ async function start() {
       ctx.assert(id !== null, 403);
       id = id.id;
 
-      let giveawayId
+      let giveawayId;
       let event;
       do {
         giveawayId = generateId();;
         event = await r.table('giveaway').get(giveawayId);
-      } while (event)
+      } while (event);
       let data = ctx.request.body;
 
       data.id = giveawayId;
       data.owner = id;
       await r.table('giveaway').insert(data);
+      await announceGiveaway({ ctx, event: data });
+
       ctx.body = giveawayId;
     },
     async giveaway({ ctx, next, path }) {
@@ -74,20 +222,77 @@ async function start() {
       ctx.assert(id !== null, 403);
       id = id.id;
 
+      console.log(ctx.method, ctx.path);
+
       switch (ctx.method) {
-        case 'GET':
-          ctx.assert(path.length === 2, 400);
+        case 'GET': {
+          ctx.assert(path.length === 2, 404, 'Endpoint not found');
           let giveawayId = path[1];
           let event = await r.table('giveaway').get(giveawayId);
-          if (!event) ctx.throw(404);
+          if (!event) ctx.throw(404, 'Event not found');
+
+          if (event.data.timestamp <= Date.now()) {
+            await chooseWinner({ ctx, event });
+          }
+          event.data.entries = event.data.users.length;
+          event.data.viableEntries = event.data.entries - ((event.winners || []).length);
           event.data.entered = event.data.users.includes(id);
           event.data.password = undefined;
           event.data.webhook = undefined;
           event.data.users = undefined;
           ctx.body = JSON.stringify(event);
           break;
-        case 'POST':
+        }
+        case 'POST': {
+          console.log('post');
+          ctx.assert(path.length === 3, 400, 'Endpoint not provided');
+          let giveawayId = path[1];
+          let event = await r.table('giveaway').get(giveawayId);
+          ctx.assert(event, 404, 'Event not found');
+          switch (path[2].toLowerCase()) {
+            case 'enter': {
+              ctx.assert(event.owner !== id, 400, 'You cannot enter your own giveaway');
+              ctx.assert(!event.data.users.includes(id), 400, 'You have already entered the giveaway');
+              let { password } = ctx.request.body;
+              if (password === event.data.password) {
+                event.data.users.push(id);
+                await r.table('giveaway').get(giveawayId).update({
+                  data: {
+                    users: event.data.users
+                  }
+                });
+                ctx.body = "true";
+              } else ctx.body = "false";
+
+              console.log(ctx.body);
+              break;
+            }
+            case 'draw': {
+              ctx.assert(id === event.owner, 403, 'You do not own this event');
+              await chooseWinner({ ctx, event });
+              ctx.body = JSON.stringify({
+                winner: event.winner,
+                winners: event.winners,
+                users: event.data.users,
+                noWinner: event.noWinner
+              });
+              break;
+            }
+            case 'announce': {
+              console.log('announce');
+              ctx.assert(id === event.owner, 403, 'You do not own this event');
+              if (event.winner)
+                await announceWinner({ ctx, event });
+              else
+                await announceGiveaway({ ctx, event });
+              break;
+            }
+            default:
+              ctx.throw(404, 'Endpoint not found');
+              break;
+          }
           break;
+        }
         default:
           ctx.throw(405);
           break;

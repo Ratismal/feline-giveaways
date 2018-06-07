@@ -82,12 +82,12 @@
 </template>
 
 <script>
-import Dropdown from '~/components/Dropdown.vue';
-import EmbedBuilder from '~/components/EmbedBuilder.vue';
+import Dropdown from "~/components/Dropdown.vue";
+import EmbedBuilder from "~/components/EmbedBuilder.vue";
 
 export default {
   mounted() {
-    this.dateText = 'Specified Date: ' + this.data.endDate.format('LLLL');
+    this.dateText = "Specified Date: " + this.data.endDate.format("LLLL");
   },
   components: { Dropdown, EmbedBuilder },
   computed: {
@@ -99,11 +99,12 @@ export default {
         this.dateString = value.toLowerCase();
         let date = window.moment(this.dateString, this.format);
         if (!date.isValid()) {
-          this.dateWarning = 'Invalid date. Use the format: day/month/year hours:minutes am/pm';
-          this.dateText = '';
+          this.dateWarning =
+            "Invalid date. Use the format: day/month/year hours:minutes am/pm";
+          this.dateText = "";
         } else {
-          this.dateWarning = '';
-          this.dateText = 'Specified Date: ' + this.data.endDate.format('LLLL');
+          this.dateWarning = "";
+          this.dateText = "Specified Date: " + date.format("LLLL");
         }
         this.data.endDate = date;
       }
@@ -112,20 +113,20 @@ export default {
   data() {
     return {
       warnings: [],
-      dateString: '',
-      format: 'DD/MM/YYYY hh:mm a',
-      dateWarning: '',
-      dateText: '',
+      dateString: "",
+      format: "DD/MM/YYYY hh:mm a",
+      dateWarning: "",
+      dateText: "",
       data: {
         endDate: window.moment(),
-        title: '',
-        description: '',
-        password: '',
+        title: "",
+        description: "",
+        password: "",
         users: [],
         webhook: {
-          url: '',
+          url: "",
           announceGiveaway: {
-            content: '',
+            content: "",
             embed: {
               fields: [],
               image: {},
@@ -137,7 +138,7 @@ export default {
             enabled: false
           },
           announceWinner: {
-            content: '',
+            content: "",
             embed: {
               fields: [],
               image: {},
@@ -154,7 +155,7 @@ export default {
   },
   methods: {
     cancel() {
-      if (confirm('unsaved progress will be lost.')) {
+      if (confirm("unsaved progress will be lost.")) {
         this.$router.go(-1);
       }
     },
@@ -162,19 +163,26 @@ export default {
       this.warnings = [];
 
       let data = this.data;
-      if (!data.title)
-        this.warnings.push('A title is required.');
-      if (!data.password)
-        this.warnings.push('A password is required.');
+      if (!data.title) this.warnings.push("A title is required.");
+      if (!data.password) this.warnings.push("A password is required.");
       if (!data.endDate.isValid())
-        this.warnings.push('A valid end date is required');
-      if (!data.webhook.url && (data.webhook.announceGiveaway.enabled || data.webhook.announceWinner.enabled))
-        this.warnings.push('A webhook URL is required if \'announce giveaway\' or \'announce winner\' is enabled.');
+        this.warnings.push("A valid end date is required");
+      if (
+        !data.webhook.url &&
+        (data.webhook.announceGiveaway.enabled ||
+          data.webhook.announceWinner.enabled)
+      )
+        this.warnings.push(
+          "A webhook URL is required if 'announce giveaway' or 'announce winner' is enabled."
+        );
 
-      for (const embed of [data.webhook.announceGiveaway.embed, data.webhook.announceWinner.embed]) {
+      for (const embed of [
+        data.webhook.announceGiveaway.embed,
+        data.webhook.announceWinner.embed
+      ]) {
         for (const field of embed.fields) {
           if (!(field.value && field.name)) {
-            this.warnings.push('All embed fields must have a name and value.');
+            this.warnings.push("All embed fields must have a name and value.");
             break;
           }
         }
@@ -184,8 +192,10 @@ export default {
         window.scrollTo(0, 0);
       } else {
         data.timestamp = data.endDate.valueOf();
-        let id = await this.$axios.$post('/create_giveaway', { data: this.data });
-        this.$router.push('/giveaway/' + id);
+        let id = await this.$axios.$post("/create_giveaway", {
+          data: this.data
+        });
+        this.$router.push("/giveaway/" + id);
       }
     }
   }
@@ -198,7 +208,7 @@ export default {
   margin: 10px 0;
 }
 .required {
-  content: '*';
+  content: "*";
   color: red;
   display: inline;
 }

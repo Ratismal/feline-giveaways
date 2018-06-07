@@ -19,6 +19,7 @@
     "jsonwebtoken": "^8.2.2",
     "koa": "^2.4.1",
     "koa-bodyparser": "^4.2.1",
+    "moment": "^2.22.2",
     "nuxt": "latest",
     "rethinkdbdash": "^2.3.31",
     "snekfetch": "^4.0.1",
