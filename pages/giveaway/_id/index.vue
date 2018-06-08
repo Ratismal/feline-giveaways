@@ -58,12 +58,17 @@
 <script>
 export default {
   asyncData({ params, $axios, $router, $store }) {
-    return $axios.$get("/giveaway/" + params.id).then(data => {
-      return Object.assign(
-        { id: params.id, winner: null, noWinner: null },
-        data
-      );
-    });
+    return $axios
+      .$get("/giveaway/" + params.id)
+      .then(data => {
+        return Object.assign(
+          { id: params.id, winner: null, noWinner: null },
+          data
+        );
+      })
+      .catch(err => {
+        if (err.response.status !== 403) throw err;
+      });
   },
   data() {
     return {
