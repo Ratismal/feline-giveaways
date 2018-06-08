@@ -75,10 +75,10 @@ export default {
       password: "",
       duration: null,
       time: {
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0
+        days: "00",
+        hours: "00",
+        minutes: "00",
+        seconds: "00"
       },
       errorMessage: "",
       successMessage: "",
@@ -88,10 +88,10 @@ export default {
   },
   computed: {
     ftime() {
-      let days = this.time.days.toString().padStart(2, "0");
-      let hours = this.time.hours.toString().padStart(2, "0");
-      let minutes = this.time.minutes.toString().padStart(2, "0");
-      let seconds = this.time.seconds.toString().padStart(2, "0");
+      let days = this.time.days;
+      let hours = this.time.hours;
+      let minutes = this.time.minutes;
+      let seconds = this.time.seconds;
 
       return { d: days, h: hours, m: minutes, s: seconds };
     },
@@ -148,10 +148,22 @@ export default {
 
         return;
       }
-      this.time.days = this.duration.days();
-      this.time.hours = this.duration.hours();
-      this.time.minutes = this.duration.minutes();
-      this.time.seconds = this.duration.seconds();
+      this.time.days = this.duration
+        .days()
+        .toString()
+        .padStart(2, "0");
+      this.time.hours = this.duration
+        .hours()
+        .toString()
+        .padStart(2, "0");
+      this.time.minutes = this.duration
+        .minutes()
+        .toString()
+        .padStart(2, "0");
+      this.time.seconds = this.duration
+        .seconds()
+        .toString()
+        .padStart(2, "0");
     },
     async enter() {
       try {
